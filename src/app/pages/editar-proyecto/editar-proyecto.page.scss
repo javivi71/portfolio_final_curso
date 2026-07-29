@@ -1,15 +1,96 @@
-.image-upload-item {
+.image-section {
+    margin-top: 12px;
+    margin-bottom: 16px;
+    padding: 0 4px;
+}
+
+.section-label {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--ion-color-medium);
     display: block;
+    margin-bottom: 8px;
+    padding-left: 16px;
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background: var(--ion-color-light);
+    border-radius: 8px;
+    padding: 4px;
+    margin-bottom: 12px;
+}
+
+.radio-item {
+    --min-height: 44px;
+    --background: transparent;
+    margin: 2px 0;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: var(--ion-color-medium);
+}
+
+ion-radio.radio-checked {
+    --color: var(--ion-color-primary);
+    --color-checked: var(--ion-color-primary);
+}
+
+.input-wrapper {
+    margin-top: 8px;
+    padding: 0 4px;
+}
+
+.file-upload-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.upload-btn {
+    width: 100%;
+    max-width: 300px;
+    font-weight: bold;
 }
 
 .preview-container {
-    margin-top: 12px;
-    text-align: center;
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
 }
 
 .preview-img {
     max-width: 100%;
-    max-height: 180px;
-    border-radius: 8px;
+    max-height: 220px;
+    border-radius: 12px;
     object-fit: cover;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.delete-btn {
+    margin-top: 8px;
+    font-size: 0.9rem;
+}
+
+.save-btn {
+    margin-top: 16px;
+    font-weight: bold;
+}
+
+@media (max-width: 480px) {
+    .preview-img {
+        max-height: 160px;
+    }
+
+    .upload-btn {
+        max-width: 100%;
+    }
 }

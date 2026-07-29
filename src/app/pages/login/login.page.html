@@ -1,13 +1,37 @@
-<ion-header><ion-toolbar color="primary"><ion-title>Login</ion-title></ion-toolbar></ion-header>
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Login</ion-title>
+  </ion-toolbar>
+</ion-header>
+
 <ion-content class="ion-padding">
   <ion-card>
-    <ion-card-header><ion-card-title>Acceso al Panel</ion-card-title></ion-card-header>
+    <ion-card-header>
+      <ion-card-title>Acceso al Panel</ion-card-title>
+    </ion-card-header>
     <ion-card-content>
-      <ion-item><ion-label position="floating">Email</ion-label><ion-input [(ngModel)]="email"></ion-input></ion-item>
-      <ion-item><ion-label position="floating">Contraseña</ion-label><ion-input [(ngModel)]="password" type="password"></ion-input></ion-item>
-      <ion-button expand="block" (click)="login()">Iniciar Sesión</ion-button>
+      
+      <!-- 🟢 AÑADIMOS LA ETIQUETA <form> para quitar el aviso del DOM -->
+      <form (ngSubmit)="login()">
+        <ion-item>
+          <ion-label position="floating">Email</ion-label>
+          <ion-input [(ngModel)]="email" name="email" type="email"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="floating">Contraseña</ion-label>
+          <ion-input [(ngModel)]="password" name="password" type="password"></ion-input>
+        </ion-item>
+
+        <!-- Cambiamos (click) por type="submit" -->
+        <ion-button expand="block" type="submit">Iniciar Sesión</ion-button>
+      </form>
+
       <ion-button expand="block" fill="clear" (click)="registro()">Registrarme</ion-button>
-      <p >*Tras registrarte, cambia el rol a 'admin' en la tabla 'usuarios' de Supabase</p>
+      
+      <p style="font-size: 12px; margin-top: 10px;">
+        *Tras registrarte, cambia el rol a 'admin' en la tabla 'usuarios' de Supabase
+      </p>
     </ion-card-content>
   </ion-card>
 </ion-content>

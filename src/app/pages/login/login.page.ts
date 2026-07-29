@@ -19,29 +19,18 @@ export class LoginPage {
   constructor(private supabase: SupabaseService, private router: Router) {}
 
   async login() {
-    if(!this.email || !this.password) {
-      alert('Rellena todos los campos');
-      return;
-    }
+    if(!this.email || !this.password) return alert('Rellena todos los campos');
     try {
       await this.supabase.login(this.email, this.password);
-      // 🔴 Esta línea es la que te lleva a la siguiente pantalla
       this.router.navigate(['/proyectos']);
-    } catch (e: any) {
-      alert('Error: ' + e.message);
-    }
+    } catch (e: any) { alert('Error: ' + e.message); }
   }
 
   async registro() {
-    if(!this.email || !this.password) {
-      alert('Rellena todos los campos');
-      return;
-    }
+    if(!this.email || !this.password) return alert('Rellena todos los campos');
     try {
       await this.supabase.registro(this.email, this.password);
       alert('Usuario registrado. Inicia sesión (cambia rol a admin en Supabase)');
-    } catch (e: any) {
-      alert('Error: ' + e.message);
-    }
+    } catch (e: any) { alert('Error: ' + e.message); }
   }
 }

@@ -18,23 +18,57 @@
     <ion-textarea [(ngModel)]="datosFormulario.descripcion" rows="4"></ion-textarea>
   </ion-item>
 
-  <ion-item class="image-upload-item">
-    <ion-label position="stacked">Imagen (Opcional)</ion-label>
-    <input type="file" accept="image/*" #fileInput style="display: none" (change)="onFileSelected($event)" />
-    <ion-button expand="block" color="medium" (click)="fileInput.click()">
-      <ion-icon name="image-outline" slot="start"></ion-icon>
-      Seleccionar Imagen
-    </ion-button>
+  <!-- 🟢 ZONA DE IMAGEN: DOS OPCIONES CON RADIO BUTTON -->
+  <div class="image-section">
+    <ion-label class="section-label">Imagen del proyecto (Opcional)</ion-label>
+    
+    <ion-radio-group [(ngModel)]="modoImagen" class="radio-group">
+      <ion-item lines="none" class="radio-item">
+        <ion-radio value="url" mode="md"></ion-radio>
+        <ion-label class="radio-label">
+          <ion-icon name="link-outline" slot="start"></ion-icon>
+          Usar URL de Internet
+        </ion-label>
+      </ion-item>
+
+      <ion-item lines="none" class="radio-item">
+        <ion-radio value="file" mode="md"></ion-radio>
+        <ion-label class="radio-label">
+          <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
+          Subir archivo local
+        </ion-label>
+      </ion-item>
+    </ion-radio-group>
+
+    <div *ngIf="modoImagen === 'url'" class="input-wrapper">
+      <ion-item>
+        <ion-label position="stacked">Pega el enlace de la imagen aquí</ion-label>
+        <ion-input 
+          [(ngModel)]="datosFormulario.imagen_url" 
+          placeholder="https://ejemplo.com/mi-imagen.jpg"
+          (ionInput)="onUrlChange()">
+        </ion-input>
+      </ion-item>
+    </div>
+
+    <div *ngIf="modoImagen === 'file'" class="input-wrapper file-upload-wrapper">
+      <input type="file" accept="image/*" #fileInput style="display: none" (change)="onFileSelected($event)" />
+      <ion-button expand="block" color="medium" (click)="fileInput.click()" class="upload-btn">
+        <ion-icon name="image-outline" slot="start"></ion-icon>
+        SELECCIONAR IMAGEN
+      </ion-button>
+    </div>
 
     <div *ngIf="previsualizacion" class="preview-container">
       <img [src]="previsualizacion" class="preview-img" />
-      <ion-button fill="clear" color="danger" size="small" (click)="borrarImagen()">
-        <ion-icon name="trash-outline"></ion-icon> Quitar
+      <ion-button fill="clear" color="danger" size="small" (click)="borrarImagen()" class="delete-btn">
+        <ion-icon name="trash-outline" slot="start"></ion-icon>
+        QUITAR
       </ion-button>
     </div>
-  </ion-item>
+  </div>
 
-  <ion-button expand="block" color="success" (click)="guardar()" [disabled]="subiendo">
+  <ion-button expand="block" color="success" (click)="guardar()" [disabled]="subiendo" class="save-btn">
     {{ subiendo ? 'Guardando...' : 'Guardar Cambios' }}
   </ion-button>
 </ion-content>

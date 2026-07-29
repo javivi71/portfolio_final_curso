@@ -26,7 +26,7 @@ export class ProyectosPage {
   }
 
   async logout() {
-    this.supabase.logout(); // El servicio ya sabe qué hacer según el entorno
+    this.supabase.logout();
   }
 
   async abrirModal(proyecto: any = null) {
