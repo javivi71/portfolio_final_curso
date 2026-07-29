@@ -38,7 +38,7 @@ export class SupabaseService {
       .single();
 
     if (error) {
-        throw new Error('Credenciales incorrectas') 
+        throw new Error('Credenciales incorrectas'); 
     }
      else {
         console.log('Conectado a supabase');
