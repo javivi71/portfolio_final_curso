@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { SupabaseService } from '../../services/supabase.service';
-// 🔴 Importamos la librería de compresión de imágenes
-import imageCompression from 'browser-image-compression';
+import { addIcons } from 'ionicons';
+import { imageOutline, trashOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-editar-proyecto',
@@ -17,73 +17,58 @@ export class EditarProyectoPage implements OnInit {
   
   @Input() proyecto: any = { titulo: '', descripcion: '', imagen_url: '' };
   datosFormulario: any = {};
-  
-  // 🟢 Variable para mostrar la previsualización de la foto
-  previsualizacionImagen: string | null = null;
-  imagenSeleccionada: File | null = null;
+  previsualizacion: string | null = null;
+  archivoSeleccionado: File | null = null;
+  subiendo: boolean = false;
 
-  constructor(private modalCtrl: ModalController, private supabase: SupabaseService) {}
+  constructor(private modalCtrl: ModalController, private supabase: SupabaseService) {
+    addIcons({ imageOutline, trashOutline });
+  }
 
   ngOnInit() {
     this.datosFormulario = this.proyecto ? { ...this.proyecto } : { titulo: '', descripcion: '', imagen_url: '' };
-    // Si ya tiene imagen, la mostramos en la previsualización
-    if (this.datosFormulario.imagen_url) {
-      this.previsualizacionImagen = this.datosFormulario.imagen_url;
-    }
+    this.previsualizacion = this.datosFormulario.imagen_url || null;
   }
 
-  // 🟢 EVENTO AL SELECCIONAR UN ARCHIVO
   async onFileSelected(event: any) {
     const file = event.target.files[0];
     if (!file) return;
-
-    try {
-      // Opciones de compresión (para que no pese demasiado en la BD)
-      const options = {
-        maxSizeMB: 1,            // Tamaño máximo 1MB
-        maxWidthOrHeight: 800,   // Reducir a 800px de ancho/alto
-        useWebWorker: true
-      };
-      
-      // Comprimimos la imagen
-      const compressedFile = await imageCompression(file, options);
-      this.imagenSeleccionada = compressedFile;
-
-      // Creamos una URL local para previsualizar la imagen al instante
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.previsualizacionImagen = e.target.result; // Esto es Base64
-        this.datosFormulario.imagen_url = e.target.result; // Lo guardamos en el formulario
-      };
-      reader.readAsDataURL(compressedFile);
-
-    } catch (error) {
-      console.error('Error al comprimir la imagen:', error);
-      alert('Error al procesar la imagen');
-    }
+    this.archivoSeleccionado = file;
+    const reader = new FileReader();
+    reader.onload = (e: any) => this.previsualizacion = e.target.result;
+    reader.readAsDataURL(file);
   }
 
-  // 🟢 BORRAR LA IMAGEN SELECCIONADA (Opcional)
   borrarImagen() {
-    this.previsualizacionImagen = null;
-    this.imagenSeleccionada = null;
+    this.previsualizacion = null;
+    this.archivoSeleccionado = null;
     this.datosFormulario.imagen_url = null;
   }
 
   async guardar() {
-    if (!this.datosFormulario.titulo || this.datosFormulario.titulo.trim() === '') {
+    if (!this.datosFormulario.titulo?.trim()) {
       alert('El título del proyecto es obligatorio.');
       return;
     }
+    this.subiendo = true;
 
     try {
+      if (this.archivoSeleccionado) {
+        const publicUrl = await this.supabase.subirImagen(this.archivoSeleccionado);
+        this.datosFormulario.imagen_url = publicUrl;
+      }
+
       if (this.datosFormulario.id) {
         await this.supabase.actualizarProyecto(this.datosFormulario.id, this.datosFormulario);
       } else {
         await this.supabase.insertarProyecto(this.datosFormulario);
       }
       this.modalCtrl.dismiss(true);
-    } catch (e: any) { alert(e.message); }
+    } catch (e: any) {
+      alert(e.message);
+    } finally {
+      this.subiendo = false;
+    }
   }
 
   cerrar() {

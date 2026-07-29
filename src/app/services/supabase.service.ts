@@ -1,5 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { Router } from '@angular/router';
 
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
@@ -10,14 +12,17 @@ export class SupabaseService {
   private supabase: SupabaseClient;
   public usuarioLogueado: any = null;
   public esAdmin: boolean = false;
+  public proyectos: any[] = [];
 
-  constructor() {
+  // 🟢 Inyectamos PLATFORM_ID para saber dónde corre la app
+  constructor(
+    private router: Router,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
     this.supabase = createClient(this.supabaseUrl, this.supabaseKey);
     this.recuperarSesion();
   }
 
-  // --- FUNCIÓN DE ENCRIPTACIÓN NATIVA (Web Crypto API) ---
-  // No usa sha.js, no usa crypto-js. Es puro navegador. No da errores.
   private async hashPassword(password: string): Promise<string> {
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
@@ -27,7 +32,6 @@ export class SupabaseService {
     return hashHex;
   }
 
-  // --- LOGIN ---
   async login(email: string, password: string) {
     const hashedPassword = await this.hashPassword(password);
     const { data, error } = await this.supabase
@@ -36,20 +40,14 @@ export class SupabaseService {
       .eq('email', email)
       .eq('password', hashedPassword)
       .single();
-
-    if (error) {
-        throw new Error('Credenciales incorrectas'); 
-    }
-     else {
-        console.log('Conectado a supabase');
-      };
-    
+    if (error) throw new Error('Credenciales incorrectas');
     this.usuarioLogueado = data;
     this.esAdmin = data.rol === 'admin';
+    localStorage.setItem('usuarioLogueado', JSON.stringify(data));
+    await this.cargarProyectos();
     return data;
   }
 
-  // --- REGISTRO ---
   async registro(email: string, password: string) {
     const hashedPassword = await this.hashPassword(password);
     const { data, error } = await this.supabase
@@ -57,58 +55,78 @@ export class SupabaseService {
       .insert([{ email, password: hashedPassword, rol: 'usuario' }])
       .select()
       .single();
-      
-    if (error) throw new Error('El email ya está registrado o hay un error');
+    if (error) throw new Error('El email ya está registrado');
     return data;
   }
 
-  // --- LOGOUT ---
+  // 🔴 LOGOUT CON DETECCIÓN DE ENTORNO
   logout() {
     this.usuarioLogueado = null;
     this.esAdmin = false;
+    this.proyectos = [];
     localStorage.removeItem('usuarioLogueado');
-    window.location.reload();
+
+    // Si estamos en un navegador (Local o Vercel)
+    if (isPlatformBrowser(this.platformId)) {
+      // Si es Vercel (detección por URL), evitamos recargar
+      if (window.location.hostname !== 'localhost') {
+        this.router.navigate(['/login']);
+      } else {
+        // Si es local, podemos recargar (pero mejor usamos router también)
+        this.router.navigate(['/login']);
+      }
+    } 
+    // Si estamos en Android o Server (Vercel sin DOM), solo navegamos
+    else {
+      this.router.navigate(['/login']);
+    }
   }
 
-  // --- RECUPERAR SESIÓN ---
   async recuperarSesion() {
-    const stored = localStorage.getItem('usuarioLogueado');
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      this.usuarioLogueado = parsed;
-      this.esAdmin = parsed.rol === 'admin';
+    // Solo intentamos leer localStorage si estamos en el navegador
+    if (isPlatformBrowser(this.platformId)) {
+      const stored = localStorage.getItem('usuarioLogueado');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        this.usuarioLogueado = parsed;
+        this.esAdmin = parsed.rol === 'admin';
+        await this.cargarProyectos();
+      }
     }
   }
 
-  guardarSesionLocal() {
-    if (this.usuarioLogueado) {
-      localStorage.setItem('usuarioLogueado', JSON.stringify(this.usuarioLogueado));
-    }
-  }
-
-  // --- CRUD DE PROYECTOS ---
-  async obtenerProyectos() {
+  async cargarProyectos() {
     const { data, error } = await this.supabase.from('proyectos').select('*').order('id', { ascending: false });
-    if (error) throw error;
-    return data || [];
+    if (!error) this.proyectos = data || [];
   }
 
   async insertarProyecto(datos: any) {
     if (!this.esAdmin) throw new Error('No tienes permisos');
-    const { data, error } = await this.supabase.from('proyectos').insert([datos]).select();
-    if (error) throw error;
-    return data;
+    await this.supabase.from('proyectos').insert([datos]);
+    await this.cargarProyectos();
   }
 
   async actualizarProyecto(id: number, datos: any) {
     if (!this.esAdmin) throw new Error('No tienes permisos');
-    const { error } = await this.supabase.from('proyectos').update(datos).eq('id', id);
-    if (error) throw error;
+    await this.supabase.from('proyectos').update(datos).eq('id', id);
+    await this.cargarProyectos();
   }
 
   async borrarProyecto(id: number) {
     if (!this.esAdmin) throw new Error('No tienes permisos');
-    const { error } = await this.supabase.from('proyectos').delete().eq('id', id);
-    if (error) throw error;
+    await this.supabase.from('proyectos').delete().eq('id', id);
+    await this.cargarProyectos();
+  }
+
+  async subirImagen(file: File): Promise<string> {
+    const nombreArchivo = `${Date.now()}_${file.name}`;
+    const { error } = await this.supabase.storage
+      .from('proyectos')
+      .upload(nombreArchivo, file);
+    if (error) throw new Error('Error al subir imagen: ' + error.message);
+    const { data: urlData } = this.supabase.storage
+      .from('proyectos')
+      .getPublicUrl(nombreArchivo);
+    return urlData.publicUrl;
   }
 }

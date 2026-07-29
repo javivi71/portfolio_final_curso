@@ -18,38 +18,23 @@
     <ion-textarea [(ngModel)]="datosFormulario.descripcion" rows="4"></ion-textarea>
   </ion-item>
 
-  <!-- 🟢 SUBIDA DE IMAGEN (Opcional) -->
-  <ion-item>
-    <ion-label position="stacked">Imagen del proyecto (Opcional)</ion-label>
-    
-    <!-- Input oculto para seleccionar archivo -->
-    <input 
-      type="file" 
-      accept="image/*" 
-      style="display: none" 
-      #fileInput 
-      (change)="onFileSelected($event)"
-    />
-
-    <!-- Botón para abrir el explorador de archivos -->
+  <ion-item class="image-upload-item">
+    <ion-label position="stacked">Imagen (Opcional)</ion-label>
+    <input type="file" accept="image/*" #fileInput style="display: none" (change)="onFileSelected($event)" />
     <ion-button expand="block" color="medium" (click)="fileInput.click()">
       <ion-icon name="image-outline" slot="start"></ion-icon>
       Seleccionar Imagen
     </ion-button>
 
-    <!-- Previsualización de la imagen (con *ngIf) -->
-    <div *ngIf="previsualizacionImagen" style="margin-top: 10px; position: relative; text-align: center;">
-      <img [src]="previsualizacionImagen" style="max-width: 100%; max-height: 200px; border-radius: 8px; object-fit: cover;" />
-      <br />
+    <div *ngIf="previsualizacion" class="preview-container">
+      <img [src]="previsualizacion" class="preview-img" />
       <ion-button fill="clear" color="danger" size="small" (click)="borrarImagen()">
-        <ion-icon name="trash-outline"></ion-icon> Quitar imagen
+        <ion-icon name="trash-outline"></ion-icon> Quitar
       </ion-button>
-    </div>
-
-    <div *ngIf="!previsualizacionImagen" style="font-size: 12px; color: var(--ion-color-medium); margin-top: 5px;">
-      Si no seleccionas imagen, no se mostrará nada.
     </div>
   </ion-item>
 
-  <ion-button expand="block" color="success" (click)="guardar()">Guardar Cambios</ion-button>
+  <ion-button expand="block" color="success" (click)="guardar()" [disabled]="subiendo">
+    {{ subiendo ? 'Guardando...' : 'Guardar Cambios' }}
+  </ion-button>
 </ion-content>

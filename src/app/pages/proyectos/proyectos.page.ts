@@ -16,7 +16,6 @@ import { logOutOutline, addCircle, createOutline, trashOutline } from 'ionicons/
   imports: [IonicModule, CommonModule, FormsModule]
 })
 export class ProyectosPage {
-  proyectos: any[] = [];
 
   constructor(
     public supabase: SupabaseService,
@@ -26,20 +25,8 @@ export class ProyectosPage {
     addIcons({ logOutOutline, addCircle, createOutline, trashOutline });
   }
 
-  async ionViewWillEnter() {
-    if (!this.supabase.usuarioLogueado) {
-      this.router.navigate(['/login']);
-    } else {
-      await this.cargarProyectos();
-    }
-  }
-
-  async cargarProyectos() {
-    try { 
-      this.proyectos = await this.supabase.obtenerProyectos(); 
-    } catch (e) { 
-      console.error(e); 
-    }
+  async logout() {
+    this.supabase.logout(); // El servicio ya sabe qué hacer según el entorno
   }
 
   async abrirModal(proyecto: any = null) {
@@ -50,7 +37,7 @@ export class ProyectosPage {
     await modal.present();
     const { data } = await modal.onWillDismiss();
     if (data) {
-      this.cargarProyectos();
+      await this.supabase.cargarProyectos();
     }
   }
 
@@ -58,7 +45,6 @@ export class ProyectosPage {
     if(!confirm('¿Seguro que quieres borrar este proyecto?')) return;
     try { 
       await this.supabase.borrarProyecto(id); 
-      this.cargarProyectos(); 
     } catch (e: any) { 
       alert(e.message); 
     }

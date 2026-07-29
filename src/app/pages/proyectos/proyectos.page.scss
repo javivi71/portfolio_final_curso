@@ -1,0 +1,47 @@
+.header-info {
+    padding: 10px 0;
+
+    p {
+        margin: 4px 0;
+        font-size: 0.95rem;
+    }
+}
+
+.admin-badge {
+    color: var(--ion-color-success);
+    font-weight: bold;
+}
+
+.user-badge {
+    color: var(--ion-color-medium);
+}
+
+.btn-add {
+    margin-top: 10px;
+}
+
+.project-card {
+    margin: 12px 8px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.project-img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+@media (max-width: 480px) {
+    .project-img {
+        height: 140px;
+    }
+}
