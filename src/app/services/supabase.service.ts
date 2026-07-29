@@ -1,28 +1,26 @@
-import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
   
-  private supabaseUrl = 'https://syqwdmrvwfjhsvnzpdgm.supabase.co'; 
-  private supabaseKey = 'sb_publishable_8j8yWHA0wxBX7I_6Fx8sEQ_CwTN8pQt';
+  // 🟢 LEE LAS VARIABLES DE ENTORNO. ESTO FUNCIONA EN LOCAL, VERCEL Y ANDROID
+  private supabaseUrl = environment.supabaseUrl;
+  private supabaseKey = environment.supabaseKey;
 
   private supabase: SupabaseClient;
   public usuarioLogueado: any = null;
   public esAdmin: boolean = false;
   public proyectos: any[] = [];
 
-  constructor(
-    private router: Router,
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) {
+  constructor(private router: Router) {
     this.supabase = createClient(this.supabaseUrl, this.supabaseKey);
     this.recuperarSesion();
   }
 
-  // --- ENCRIPTACIÓN ---
+  // --- ENCRIPTACIÓN NATIVA ---
   private async hashPassword(password: string): Promise<string> {
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
@@ -32,7 +30,6 @@ export class SupabaseService {
     return hashHex;
   }
 
-  // --- LOGIN ---
   async login(email: string, password: string) {
     const hashedPassword = await this.hashPassword(password);
     const { data, error } = await this.supabase
@@ -49,7 +46,6 @@ export class SupabaseService {
     return data;
   }
 
-  // --- REGISTRO ---
   async registro(email: string, password: string) {
     const hashedPassword = await this.hashPassword(password);
     const { data, error } = await this.supabase
@@ -61,30 +57,24 @@ export class SupabaseService {
     return data;
   }
 
-  // --- LOGOUT (Sin recargar la página) ---
   logout() {
     this.usuarioLogueado = null;
     this.esAdmin = false;
     this.proyectos = [];
     localStorage.removeItem('usuarioLogueado');
-    // Navegamos directamente al login sin importar el entorno
     this.router.navigate(['/login']);
   }
 
-  // --- RECUPERAR SESIÓN ---
   async recuperarSesion() {
-    if (isPlatformBrowser(this.platformId)) {
-      const stored = localStorage.getItem('usuarioLogueado');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        this.usuarioLogueado = parsed;
-        this.esAdmin = parsed.rol === 'admin';
-        await this.cargarProyectos();
-      }
+    const stored = localStorage.getItem('usuarioLogueado');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      this.usuarioLogueado = parsed;
+      this.esAdmin = parsed.rol === 'admin';
+      await this.cargarProyectos();
     }
   }
 
-  // --- CRUD DE PROYECTOS ---
   async cargarProyectos() {
     const { data, error } = await this.supabase.from('proyectos').select('*').order('id', { ascending: false });
     if (!error) this.proyectos = data || [];
@@ -108,7 +98,6 @@ export class SupabaseService {
     await this.cargarProyectos();
   }
 
-  // --- SUBIR IMAGEN A SUPABASE STORAGE ---
   async subirImagen(file: File): Promise<string> {
     const nombreArchivo = `${Date.now()}_${file.name}`;
     const { error } = await this.supabase.storage

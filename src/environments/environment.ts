@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  supabaseUrl: 'https://syqwdmrvwfjhsvnzpdgm.supabase.co',
+  supabaseKey: 'sb_publishable_8j8yWHA0wxBX7I_6Fx8sEQ_CwTN8pQt'
 };
 
 /*
@@ -14,3 +16,6 @@ export const environment = {
  * on performance if an error is thrown.
  */
 // import 'zone.js/plugins/zone-error';  // Included with Angular CLI.
+
+
+
