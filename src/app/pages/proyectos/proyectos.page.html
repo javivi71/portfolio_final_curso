@@ -1,0 +1,37 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Mi Portfolio</ion-title>
+    <ion-buttons slot="end">
+      <ion-button *ngIf="supabase.usuarioLogueado" (click)="supabase.logout()">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  
+  <div *ngIf="supabase.usuarioLogueado" class="ion-text-center">
+    <p>Bienvenido, <strong>{{ supabase.usuarioLogueado.email }}</strong></p>
+    <p *ngIf="supabase.esAdmin" style="color: var(--ion-color-success);">🔑 Administrador</p>
+    <p *ngIf="!supabase.esAdmin" style="color: var(--ion-color-medium);">👤 Usuario</p>
+  </div>
+
+  <!-- BOTÓN PARA CREAR -->
+  <ion-button *ngIf="supabase.esAdmin" expand="block" color="tertiary" (click)="abrirModal()" class="ion-margin-bottom">
+    <ion-icon name="add-circle"></ion-icon> Añadir Proyecto
+  </ion-button>
+
+  <!-- LISTA CON BOTONES DE ACCIÓN -->
+  <ion-list>
+    <ion-item *ngFor="let p of proyectos">
+      <ion-thumbnail slot="start"><img [src]="p.imagen_url || 'assets/icon/favicon.png'" /></ion-thumbnail>
+      <ion-label><h2>{{ p.titulo }}</h2><p>{{ p.descripcion }}</p></ion-label>
+      
+      <div *ngIf="supabase.esAdmin" slot="end">
+        <ion-button fill="clear" color="primary" (click)="abrirModal(p)"><ion-icon name="create-outline"></ion-icon></ion-button>
+        <ion-button fill="clear" color="danger" (click)="borrar(p.id)"><ion-icon name="trash-outline"></ion-icon></ion-button>
+      </div>
+    </ion-item>
+  </ion-list>
+</ion-content>
