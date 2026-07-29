@@ -37,7 +37,12 @@ export class SupabaseService {
       .eq('password', hashedPassword)
       .single();
 
-    if (error) throw new Error('Credenciales incorrectas');
+    if (error) {
+        throw new Error('Credenciales incorrectas') 
+    }
+     else {
+        console.log('Conectado a supabase');
+      };
     
     this.usuarioLogueado = data;
     this.esAdmin = data.rol === 'admin';
