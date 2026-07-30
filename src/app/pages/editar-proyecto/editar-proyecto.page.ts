@@ -1,22 +1,55 @@
+
 import { Component, Input, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { IonicModule, ModalController } from '@ionic/angular';
-import { SupabaseService } from '../../services/supabase.service';
+import { CommonModule, NgFor, NgIf } from '@angular/common';  // <-- OBLIGATORIO
+import { FormsModule, NgForm } from '@angular/forms';   // <-- Para [(ngModel)]
+import {
+  IonButton,
+  IonButtons,      
+  IonContent,
+  IonHeader,       
+  IonIcon,         
+  IonInput,       
+  IonItem,        
+  IonLabel,        
+  IonRadio,       
+  IonRadioGroup,   
+  IonTextarea,     
+  IonTitle,        
+  IonToolbar,       
+  ModalController
+} from '@ionic/angular/standalone';
+import { cloudUploadOutline, imageOutline, linkOutline, trashOutline } from 'ionicons/icons';
+import { SupabaseService } from 'src/app/services/supabase.service';
 import { addIcons } from 'ionicons';
-// 🟢 IMPORTAMOS LOS 5 ICONOS QUE USA EL HTML
-import { imageOutline, trashOutline, linkOutline, cloudUploadOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-editar-proyecto',
   templateUrl: './editar-proyecto.page.html',
   styleUrls: ['./editar-proyecto.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule]
+  imports: [
+    CommonModule,  
+    FormsModule,    
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonRadio,
+    IonRadioGroup,
+    IonTextarea,
+    IonTitle,
+    IonToolbar
+  
+  ]
 })
 export class EditarProyectoPage implements OnInit {
   
-  @Input() proyecto: any = { titulo: '', descripcion: '', imagen_url: '' };
+  @Input() 
+  proyecto: any = { titulo: '', descripcion: '', imagen_url: '' };
   datosFormulario: any = {};
   
   // 🟢 DECLARAMOS LAS VARIABLES QUE USA EL HTML

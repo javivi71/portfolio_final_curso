@@ -1,16 +1,19 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
 import { SupabaseService } from '../../services/supabase.service';
 import { Router } from '@angular/router';
+import { IonButton,  IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonContent, IonHeader, IonInput, IonItem, IonLabel, IonTitle, IonToolbar } 
+       from '@ionic/angular/standalone';
+import { FormsModule } from '@angular/forms';
+import { CommonModule, NgFor, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule]
+  imports: [CommonModule,IonCard,IonCardContent,IonCardTitle,IonItem,IonContent,IonLabel,IonCardHeader,IonInput,IonButton,IonToolbar,IonTitle,
+            IonHeader,FormsModule,IonButton
+  ]
 })
 export class LoginPage {
   email: string = '';
